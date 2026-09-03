@@ -1,0 +1,60 @@
+erDiagram
+    Edicion {
+        int id PK
+        varchar nombre
+        int anio
+        date fecha_inicio
+        date fecha_fin
+    }
+    Persona {
+        int id PK
+        varchar nombre
+        varchar correo UK
+    }
+    Asistente {
+        int persona_id PK,FK
+        varchar tipo_acreditacion
+    }
+    Ponente {
+        int persona_id PK,FK
+        text biografia
+    }
+    Sesion {
+        int id PK
+        int edicion_id FK
+        int sala_id FK
+        varchar tipo_sesion
+    }
+    Charla {
+        int sesion_id PK,FK
+        int minutos_preguntas
+    }
+    Taller {
+        int sesion_id PK,FK
+        int cupo_practico
+    }
+    TransmisionVirtual {
+        int sesion_id PK,FK
+        varchar enlace
+    }
+    Inscripcion {
+        int asistente_id PK,FK
+        int sesion_id PK,FK
+    }
+    AsignacionPonente {
+        int ponente_id PK,FK
+        int sesion_id PK,FK
+    }
+    Prerrequisito {
+        int sesion_id PK,FK
+        int prerrequisito_id PK,FK
+    }
+
+    Persona ||--|| Asistente : ""
+    Persona ||--|| Ponente : ""
+    Sesion ||--|| Charla : ""
+    Sesion ||--|| Taller : ""
+    Sesion ||--|| TransmisionVirtual : ""
+    Asistente ||--o{ Inscripcion : ""
+    Sesion ||--o{ Inscripcion : ""
+    Sesion ||--o{ Prerrequisito : ""
