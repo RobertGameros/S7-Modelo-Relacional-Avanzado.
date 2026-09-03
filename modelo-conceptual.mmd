@@ -1,0 +1,19 @@
+erDiagram
+    %% 1:1
+    SESION ||--o| TRANSMISION_VIRTUAL : "tiene"
+    %% 1:N
+    SEDE ||--o{ SALA : "contiene"
+    SALA ||--o{ SESION : "aloja"
+    EDICION ||--o{ SESION : "organiza"
+    %% N:M
+    ASISTENTE }|--|{ SESION : "Inscripcion"
+    PONENTE }|--|{ SESION : "Asignacion"
+    EMPRESA }|--|{ EDICION : "AcuerdoPatrocinio"
+    %% Recursiva
+    SESION }|--o{ SESION : "Prerrequisito"
+
+    %% Jerarquías
+    PERSONA ||--o{ ASISTENTE : "es (Solapada, Total)"
+    PERSONA ||--o{ PONENTE : "es (Solapada, Total)"
+    SESION ||--o| CHARLA : "es (Disjunta, Total)"
+    SESION ||--o| TALLER : "es (Disjunta, Total)"
