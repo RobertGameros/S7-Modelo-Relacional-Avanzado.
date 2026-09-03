@@ -216,3 +216,4 @@ docker-compose up -d     # Base de datos limpia
 **Robert Gameros** · Ingeniería en Sistemas · Bases de Datos · 2026
 
 </div>
+
