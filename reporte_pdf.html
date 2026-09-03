@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<title>Reporte S7 - Modelo Relacional Avanzado</title>
+<style>
+  @page { size: Letter; margin: 2.5cm; }
+  body {
+    font-family: 'Times New Roman', Times, serif;
+    font-size: 12pt;
+    line-height: 1.5;
+    color: #000;
+    max-width: 21cm;
+    margin: 0 auto;
+    padding: 0;
+    background: #fff;
+  }
+  .page-break { page-break-before: always; }
+  .avoid-break { page-break-inside: avoid; }
+  
+  /* COVER PAGE */
+  .cover {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; min-height: 85vh; padding-top: 2cm;
+  }
+  .cover h1 { font-size: 14pt; margin: 0; padding: 0; font-weight: bold; line-height: 1.3; }
+  .cover .section { margin-top: 2.5cm; }
+  .cover .section-title { font-weight: bold; margin-bottom: 0.2cm; }
+  .cover-logo { margin: 2cm 0; width: 220px; height: 220px; object-fit: contain; }
+  .logo-placeholder { width: 220px; height: 220px; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; color: #999; margin: 2cm auto; }
+  .cover-footer { width: 100%; text-align: right; margin-top: 3cm; font-weight: bold; }
+  .red-text { color: #c00000; font-weight: bold; }
+  
+  /* HEADINGS */
+  h2 { font-size: 14pt; font-weight: bold; margin-top: 1.5em; margin-bottom: 1em; text-align: left; }
+  h3 { font-size: 12pt; font-weight: bold; margin-top: 1.5em; margin-bottom: 0.5em; text-align: left; }
+  p { margin-bottom: 1em; text-align: justify; }
+  a { color: #0000ff; text-decoration: underline; word-break: break-all; }
+  
+  /* TABLES */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 1.5em; font-size: 11pt; }
+  th, td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: middle; }
+  th { background-color: #1a3b6c; color: #fff; font-weight: bold; }
+  .table-left td { text-align: left; }
+  .table-left td:first-child { text-align: center; font-weight: bold; }
+  .table-green-col td:first-child { background-color: #a8d08d; font-weight: bold; }
+  
+  /* DIAGRAMS */
+  .diagram { text-align: center; margin: 2em 0; }
+  .diagram img { max-width: 100%; height: auto; border: 1px solid #ccc; }
+  .diagram-caption { font-style: italic; font-size: 11pt; margin-top: 0.5em; }
+  
+  /* CODE & TESTS */
+  .code-block { background-color: #0f172a; color: #e2e8f0; font-family: 'Courier New', Courier, monospace; font-size: 10pt; padding: 15px; border-radius: 5px; margin-bottom: 1.5em; white-space: pre-wrap; }
+  
+  .test-card { border: 1px solid #fca5a5; background-color: #fff5f5; border-radius: 8px; padding: 15px; margin-bottom: 1.5em; }
+  .test-header { display: flex; justify-content: space-between; font-weight: bold; color: #991b1b; margin-bottom: 10px; }
+  .badge { background-color: #dc2626; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 9pt; }
+  .error-block { background-color: #1e1e1e; color: #fca5a5; font-family: 'Courier New', Courier, monospace; font-size: 9.5pt; padding: 10px; margin-top: 10px; border-radius: 5px; }
+
+  /* GRIDS */
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5em; }
+  .grid-card { border: 1px solid #ccc; padding: 10px; text-align: center; border-radius: 5px; }
+  .grid-card-title { font-weight: bold; color: #1a3b6c; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 5px; }
+  
+  @media print {
+    body { margin: 0; max-width: 100%; }
+    th { background-color: #1a3b6c !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .test-card { background-color: #fff5f5 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .badge { background-color: #dc2626 !important; color: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .code-block, .error-block { background-color: #1e1e1e !important; color: #e2e8f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .table-green-col td:first-child { background-color: #a8d08d !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PORTADA -->
+<div class="cover">
+  <h1>Facultad de Ingeniería<br>Campus Retalhuleu</h1>
+  
+  <div class="section">
+    <div class="section-title">Curso:</div>
+    <div>Base de Datos I</div>
+  </div>
+  
+  <div class="section">
+    <div class="section-title">Catedrático:</div>
+    <div>Ing. Yoel Fransua Monzón Estrada</div>
+  </div>
+  
+  <!-- REEMPLAZAR CON ESCUDO -->
+  <img src="escudo-umg.png" alt="Escudo UMG" class="cover-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+  <div class="logo-placeholder" style="display:none;">Colocar escudo-umg.png aquí</div>
+  
+  <div class="section">
+    <div class="section-title">Tema:</div>
+    <div><span class="red-text">[S7]</span> De la narrativa al modelo relacional avanzado</div>
+  </div>
+  
+  <div class="section" style="margin-top: 1.5cm;">
+    <div>Robert Geovanni Barrios Gameros: 2890-24-6773</div>
+  </div>
+  
+  <div class="cover-footer">
+    Fecha: 02/09/2026
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- PAGINA 2 -->
+<div style="text-align: center; margin-bottom: 2em;">
+  <h2>Relacional Avanzado</h2>
+  <h3 style="text-align: center; margin-top:0;">ConectaTech Sistema de Gestión de Congresos Profesionales</h3>
+</div>
+
+<h2>Análisis del Dominio — Entidades y Reglas</h2>
+<p><strong>Objetivo:</strong> Gestionar congresos profesionales (presenciales, virtuales e híbridos), su programa de sesiones, participantes, sedes y patrocinadores en un esquema PostgreSQL completamente íntegro.</p>
+
+<p style="margin-top: 2em;">
+  <strong>URL Repositorio:</strong> <a href="https://github.com/RobertGameros/S7-Modelo-Relacional-Avanzado.">https://github.com/RobertGameros/S7-Modelo-Relacional-Avanzado.</a>
+</p>
+<p>
+  <strong>Video:</strong><br>
+  <a href="https://drive.google.com/drive/folders/1rsT8FCPpZ7aiTyq1t3qWWwalcTQky-Z4?usp=sharing">https://drive.google.com/drive/folders/1rsT8FCPpZ7aiTyq1t3qWWwalcTQky-Z4?usp=sharing</a>
+</p>
+
+<div class="page-break"></div>
+
+<!-- PAGINA 3 - TABLA ENTIDADES -->
+<h2>Entidades Identificadas</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Entidad</th>
+      <th>Identificador (PK)</th>
+      <th>Atributos Clave</th>
+      <th>Tipo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Edición</strong></td>
+      <td>id IDENTITY</td>
+      <td>nombre, año,<br>fecha_inicio,<br>fecha_fin, estado</td>
+      <td>Principal</td>
+    </tr>
+    <tr>
+      <td><strong>Sede</strong></td>
+      <td>id IDENTITY</td>
+      <td>nombre, dirección</td>
+      <td>Principal</td>
+    </tr>
+    <tr>
+      <td><strong>Sala</strong></td>
+      <td>id IDENTITY</td>
+      <td>nombre, capacidad,<br>sede_id</td>
+      <td>Principal</td>
+    </tr>
+    <tr>
+      <td><strong>Persona</strong></td>
+      <td>id IDENTITY</td>
+      <td>nombre, correo<br>(UNIQUE), pais</td>
+      <td>Supertipo</td>
+    </tr>
+    <tr>
+      <td><strong>Asistente</strong></td>
+      <td>persona_id</td>
+      <td>tipo_acreditacion</td>
+      <td>Subtipo<br>Jerarquía<br>Solapada</td>
+    </tr>
+    <tr>
+      <td><strong>Ponente</strong></td>
+      <td>persona_id</td>
+      <td>biografía</td>
+      <td>Subtipo<br>Jerarquía<br>Solapada</td>
+    </tr>
+    <tr>
+      <td><strong>Sesion</strong></td>
+      <td>id IDENTITY</td>
+      <td>titulo, resumen,<br>fecha, hora_inicio,<br>hora_fin, tipo_sesion</td>
+      <td>Supertipo</td>
+    </tr>
+    <tr>
+      <td><strong>Charla</strong></td>
+      <td>sesion_id</td>
+      <td>minutos_preguntas</td>
+      <td>Subtipo<br>Jerarquía<br>Disjunta</td>
+    </tr>
+    <tr>
+      <td><strong>Taller</strong></td>
+      <td>sesion_id</td>
+      <td>cupo_practico,<br>requisitos_materiales</td>
+      <td>Subtipo<br>Jerarquía<br>Disjunta</td>
+    </tr>
+    <tr>
+      <td><strong>Transmision<br>Virtual</strong></td>
+      <td>sesion_id</td>
+      <td>enlace, plataforma</td>
+      <td>Extensión 1:1</td>
+    </tr>
+    <tr>
+      <td><strong>Empresa</strong></td>
+      <td>id IDENTITY</td>
+      <td>nombre (UNIQUE)</td>
+      <td>Principal</td>
+    </tr>
+    <tr>
+      <td><strong>Inscripcion</strong></td>
+      <td>(asistente_id,<br>sesion_id)</td>
+      <td>fecha_registro,<br>estado,<br>asistio</td>
+      <td>Asociativa<br>N:M</td>
+    </tr>
+    <tr>
+      <td><strong>AsignacionP<br>onente</strong></td>
+      <td>(ponente_id,<br>sesion_id)</td>
+      <td>rol, orden</td>
+      <td>Asociativa<br>N:M</td>
+    </tr>
+    <tr>
+      <td><strong>AcuerdoPatr<br>ocinio</strong></td>
+      <td>id +<br>UNIQUE<br>(empresa,edicion)</td>
+      <td>categoria, monto,<br>fecha_confirmacion</td>
+      <td>Asociativa<br>N:M</td>
+    </tr>
+    <tr>
+      <td><strong>Prerrequisito</strong></td>
+      <td>(sesion_id,<br>prerrequisito_id)</td>
+      <td>—</td>
+      <td>Asociativa<br>Recursiva</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<!-- PAGINA 5 - REGLAS -->
+<h2>12 Reglas de Negocio</h2>
+<table class="table-left">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Regla</th>
+      <th>Origen</th>
+      <th>Restricción SQL</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>R1</td>
+      <td>fecha_fin no puede ser anterior a fecha_inicio de la edición.</td>
+      <td>Explícito</td>
+      <td>CHECK (fecha_fin >= fecha_inicio)</td>
+    </tr>
+    <tr>
+      <td>R2</td>
+      <td>El correo de cada persona debe ser único en el sistema.</td>
+      <td>Explícito</td>
+      <td>UNIQUE (correo)</td>
+    </tr>
+    <tr>
+      <td>R3</td>
+      <td>Toda sesión es exactamente Charla o Taller, nunca ambas.</td>
+      <td>Explícito</td>
+      <td>CHECK (tipo_sesion IN ('Charla', 'Taller'))</td>
+    </tr>
+    <tr>
+      <td>R4</td>
+      <td>Un asistente no puede inscribirse dos veces en la misma sesión.</td>
+      <td>Explícito</td>
+      <td>PRIMARY KEY (asistente_id, sesion_id)</td>
+    </tr>
+    <tr>
+      <td>R5</td>
+      <td>Ninguna sesión puede ser prerrequisito de sí misma.</td>
+      <td>Explícito</td>
+      <td>CHECK (sesion_id != prerrequisito_id)</td>
+    </tr>
+    <tr>
+      <td>R6</td>
+      <td>Una empresa solo puede tener un acuerdo vigente por edición.</td>
+      <td>Explícito</td>
+      <td>UNIQUE (empresa_id, edicion_id)</td>
+    </tr>
+    <tr>
+      <td>R7</td>
+      <td>La hora final de la sesión debe ser posterior a la inicial.</td>
+      <td>Explícito</td>
+      <td>CHECK (hora_fin > hora_inicio)</td>
+    </tr>
+    <tr>
+      <td>R8</td>
+      <td>La capacidad de una sala debe ser mayor a cero.</td>
+      <td>Supuesto</td>
+      <td>CHECK (capacidad > 0)</td>
+    </tr>
+    <tr>
+      <td>R9</td>
+      <td>El cupo práctico de un taller debe ser positivo.</td>
+      <td>Supuesto</td>
+      <td>CHECK (cupo_practico > 0)</td>
+    </tr>
+    <tr>
+      <td>R10</td>
+      <td>Los minutos de preguntas de una charla no pueden ser negativos.</td>
+      <td>Supuesto</td>
+      <td>CHECK (minutos_preguntas >= 0)</td>
+    </tr>
+    <tr>
+      <td>R11</td>
+      <td>El monto de un acuerdo de patrocinio no puede ser negativo.</td>
+      <td>Supuesto</td>
+      <td>CHECK (monto >= 0)</td>
+    </tr>
+    <tr>
+      <td>R12</td>
+      <td>El año de una edición debe ser posterior a 1999.</td>
+      <td>Decisión propia</td>
+      <td>CHECK (anio >= 2000)</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="page-break"></div>
+
+<!-- PAGINA 6 - MODELO CONCEPTUAL -->
+<h2>Modelo Conceptual (Diagrama ER)</h2>
+<div style="background-color: #fffbeb; border-left: 4px solid #d97706; padding: 10px; margin-bottom: 1.5em;">
+  <strong>Elaborado en Mermaid.</strong> Archivo fuente: <code>modelo-conceptual.mmd</code> en el repositorio.
+</div>
+
+<table style="border: none; margin-bottom: 0;">
+  <tr style="border: none;">
+    <td style="border: none; text-align: left; vertical-align: top; padding-right: 15px;">
+      <h3 style="text-align: center; margin-top: 0;">Jerarquía Solapada y Total<br>Persona</h3>
+      <div style="background-color: #f0fdf4; border-left: 4px solid #16a34a; padding: 10px; margin-top: 10px;">
+        <strong>Persona → Asistente / Ponente</strong><br>
+        Una persona puede ser asistente, ponente o ambos (solapada). Todo inscrito debe cumplir al menos uno (total). Estrategia: 3 tablas con FK.
+      </div>
+    </td>
+    <td style="border: none; text-align: left; vertical-align: top; padding-left: 15px;">
+      <h3 style="text-align: center; margin-top: 0;">Jerarquía Disjunta y Total<br>Sesión</h3>
+      <div style="background-color: #f0fdf4; border-left: 4px solid #16a34a; padding: 10px; margin-top: 10px;">
+        <strong>Sesion → Charla / Taller</strong><br>
+        Una sesión es exactamente de un tipo, nunca de ambos (disjunta y total). Estrategia: columna discriminadora tipo_sesion + tabla extendida con FK=PK.
+      </div>
+    </td>
+  </tr>
+</table>
+
+<div class="diagram avoid-break">
+  <img src="diagrama-conceptual.png" alt="Diagrama Conceptual">
+  <div class="diagram-caption">Figura 1 — Diagrama Entidad-Relación Conceptual: ConectaTech</div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- PAGINA 7 - MODELO LÓGICO Y DECISIONES -->
+<h2>Modelo Lógico y Decisiones de Transformación</h2>
+<h3>Resumen de Relaciones</h3>
+<table>
+  <thead>
+    <tr>
+      <th>Tipo</th>
+      <th>Entidades</th>
+      <th>Cardinalidad</th>
+      <th>Entidad Asociativa</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="color: #6b21a8; font-weight: bold;">1:1</td>
+      <td>Sesión → TransmisionVirtual</td>
+      <td>Una sesión tiene como máximo una transmisión virtual</td>
+      <td>TransmisionVirtual<br>(PK = FK)</td>
+    </tr>
+    <tr>
+      <td style="color: #1d4ed8; font-weight: bold;">1:N</td>
+      <td>Sede → Sala</td>
+      <td>Una sede contiene varias salas</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td style="color: #1d4ed8; font-weight: bold;">1:N</td>
+      <td>Edicion → Sesion</td>
+      <td>Una edición organiza múltiples sesiones</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td style="color: #1d4ed8; font-weight: bold;">1:N</td>
+      <td>Sala → Sesion</td>
+      <td>Una sala aloja varias sesiones en distintos horarios</td>
+      <td>—</td>
+    </tr>
+    <tr>
+      <td style="color: #6b21a8; font-weight: bold;">N:M</td>
+      <td>Asistente ↔ Sesion</td>
+      <td>Un asistente puede inscribirse en varias sesiones</td>
+      <td>Inscripcion</td>
+    </tr>
+    <tr>
+      <td style="color: #6b21a8; font-weight: bold;">N:M</td>
+      <td>Ponente ↔ Sesion</td>
+      <td>Un ponente puede participar en varias sesiones</td>
+      <td>AsignacionPonente</td>
+    </tr>
+    <tr>
+      <td style="color: #6b21a8; font-weight: bold;">N:M</td>
+      <td>Empresa ↔ Edicion</td>
+      <td>Una empresa patrocina distintas ediciones</td>
+      <td>AcuerdoPatrocinio</td>
+    </tr>
+    <tr>
+      <td style="font-weight: bold; transform: rotate(-45deg);">Recursiva</td>
+      <td>Sesion → Sesion</td>
+      <td>Una sesión puede requerir completar otras sesiones previas</td>
+      <td>Prerrequisito</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>Estrategias de Jerarquía</h3>
+<table style="border: none; margin-bottom: 0;">
+  <tr style="border: none;">
+    <td style="border: 1px solid #ccc; text-align: left; vertical-align: top; padding: 15px; border-radius: 5px; width: 48%;">
+      <h3 style="text-align: center; margin-top: 0;">Persona Jerarquía Solapada<br>(3 tablas)</h3>
+      <p style="text-align: center;">Se usó Superclase + Subclases separadas. Cada fila en <strong>Asistente</strong> o <strong>Ponente</strong> tiene <strong>persona_id</strong> como PK y FK simultáneamente, reutilizando la identidad del supertipo. Permite registrar una persona en ambas tablas sin inconsistencias.</p>
+    </td>
+    <td style="border: none; width: 4%;"></td>
+    <td style="border: 1px solid #ccc; text-align: left; vertical-align: top; padding: 15px; border-radius: 5px; width: 48%;">
+      <h3 style="text-align: center; margin-top: 0;">Sesión Jerarquía Disjunta<br>(discriminadora)</h3>
+      <p style="text-align: center;">La tabla Sesion contiene <strong>tipo_sesion VARCHAR CHECK IN ('Charla','Taller')</strong>. Las tablas <strong>Charla</strong> y <strong>Taller</strong> extienden con FK=PK, garantizando exactamente un tipo por fila.</p>
+    </td>
+  </tr>
+</table>
+
+<div class="diagram avoid-break">
+  <img src="diagrama-logico.png" alt="Diagrama Lógico">
+  <div class="diagram-caption">Figura 2 — Diagrama Lógico Relacional: tablas, PK, FK y claves candidatas</div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- PAGINA 10 - IMPLEMENTACION SQL -->
+<h2>Implementación SQL en PostgreSQL 18</h2>
+<p>Scripts ejecutados en orden: <code>01_schema.sql → 02_seed.sql → 03_queries.sql → 04_invalid_tests.sql</code> desde una base de datos vacía, sin edición manual.</p>
+
+<h3>Fragmento representativo del Schema</h3>
+<div class="code-block avoid-break">
+<span style="color: #93c5fd;">CREATE TABLE</span> Sesion (
+  id          <span style="color: #93c5fd;">INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY</span>,
+  edicion_id  <span style="color: #93c5fd;">INT NOT NULL REFERENCES</span> Edicion(id) <span style="color: #93c5fd;">ON DELETE CASCADE</span>,
+  sala_id     <span style="color: #93c5fd;">INT REFERENCES</span> Sala(id) <span style="color: #93c5fd;">ON DELETE SET NULL</span>,
+  titulo      <span style="color: #93c5fd;">VARCHAR</span>(200) <span style="color: #93c5fd;">NOT NULL</span>,
+  hora_inicio <span style="color: #93c5fd;">TIME NOT NULL</span>,
+  hora_fin    <span style="color: #93c5fd;">TIME NOT NULL</span>,
+  tipo_sesion <span style="color: #93c5fd;">VARCHAR</span>(20) <span style="color: #93c5fd;">NOT NULL CHECK</span> (tipo_sesion <span style="color: #93c5fd;">IN</span> ('Charla', 'Taller')),
+  <span style="color: #93c5fd;">CHECK</span> (hora_fin > hora_inicio)
+);
+
+<span style="color: #93c5fd;">CREATE TABLE</span> Prerrequisito (
+  sesion_id        <span style="color: #93c5fd;">INT NOT NULL REFERENCES</span> Sesion(id) <span style="color: #93c5fd;">ON DELETE CASCADE</span>,
+  prerrequisito_id <span style="color: #93c5fd;">INT NOT NULL REFERENCES</span> Sesion(id) <span style="color: #93c5fd;">ON DELETE CASCADE</span>,
+  <span style="color: #93c5fd;">PRIMARY KEY</span> (sesion_id, prerrequisito_id),
+  <span style="color: #93c5fd;">CHECK</span> (sesion_id != prerrequisito_id)  <span style="color: #64748b; font-style: italic;">-- Evita autorrelacion</span>
+);
+</div>
+
+<h3>Consulta Multi-tabla (03_queries.sql)</h3>
+<div class="code-block avoid-break">
+<span style="color: #93c5fd;">SELECT</span> p.nombre <span style="color: #93c5fd;">AS</span> asistente, s.titulo <span style="color: #93c5fd;">AS</span> sesion,
+       e.nombre <span style="color: #93c5fd;">AS</span> edicion, i.fecha_registro
+<span style="color: #93c5fd;">FROM</span> Persona p
+<span style="color: #93c5fd;">JOIN</span> Asistente a  <span style="color: #93c5fd;">ON</span> p.id         = a.persona_id
+<span style="color: #93c5fd;">JOIN</span> Inscripcion i <span style="color: #93c5fd;">ON</span> a.persona_id = i.asistente_id
+<span style="color: #93c5fd;">JOIN</span> Sesion s     <span style="color: #93c5fd;">ON</span> i.sesion_id  = s.id
+<span style="color: #93c5fd;">JOIN</span> Edicion e    <span style="color: #93c5fd;">ON</span> s.edicion_id = e.id
+<span style="color: #93c5fd;">ORDER BY</span> e.fecha_inicio, s.hora_inicio;
+</div>
+
+<div class="page-break"></div>
+
+<!-- PAGINA 11 - SEED DATA -->
+<h2>Datos de Prueba — Seed</h2>
+<div class="grid-3">
+  <div class="grid-card avoid-break">
+    <div class="grid-card-title">2 Ediciones</div>
+    ConectaTech 2026<br>(Presencial)<br>ConectaTech 2027<br>(Planificación)
+  </div>
+  <div class="grid-card avoid-break">
+    <div class="grid-card-title">6 Personas</div>
+    Ana, Carlos, Elena, David, Sofía, Luis<br>5 asistentes · 3 ponentes
+  </div>
+  <div class="grid-card avoid-break">
+    <div class="grid-card-title">6 Sesiones</div>
+    3 charlas + 3 talleres<br>1 sesión virtual con transmisión
+  </div>
+  <div class="grid-card avoid-break">
+    <div class="grid-card-title">8 Inscripciones</div>
+    Asistentes distribuidos en distintas sesiones y ediciones
+  </div>
+  <div class="grid-card avoid-break">
+    <div class="grid-card-title">4 Asignaciones</div>
+    David (IA + Postgres)<br>Sofía (Seguridad) · Luis (Cloud)
+  </div>
+  <div class="grid-card avoid-break">
+    <div class="grid-card-title">3 Acuerdos</div>
+    TechGlobal Platino $10k<br>CloudNet Oro $5k · DataSec 2027
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- PAGINAS 12 y 13 - PRUEBAS INVALIDAS -->
+<h2>Restricciones — 6 Operaciones Inválidas Rechazadas</h2>
+<p>Cada operación es rechazada por PostgreSQL por una restricción distinta definida en el schema.</p>
+
+<div class="test-card">
+  <div class="test-header">
+    <span>1 Inscripción Duplicada — mismo asistente en la misma sesión</span>
+    <span class="badge">PRIMARY KEY</span>
+  </div>
+  <div class="code-block" style="margin-bottom:0; padding:10px;">INSERT INTO Inscripcion (asistente_id, sesion_id) VALUES ( 1, 1);</div>
+  <div class="error-block">
+    ERROR: duplicate key value violates unique constraint " inscripcion_pkey"<br>
+    DETAIL: Key (asistente_id, sesion_id) =( 1, 1) already exists.
+  </div>
+</div>
+
+<div class="test-card">
+  <div class="test-header">
+    <span>2 FK Inexistente — sala_id que no existe en la BD</span>
+    <span class="badge">FOREIGN KEY</span>
+  </div>
+  <div class="code-block" style="margin-bottom:0; padding:10px;">INSERT INTO Sesion ( ..., sala_id, ...) VALUES ( ..., 999, ... );</div>
+  <div class="error-block">
+    ERROR: insert or update on table "sesion" violates foreign key constraint "sesion_sala_id_fkey"<br>
+    DETAIL: Key (sala_id)=( 999) is not present in table "sala".
+  </div>
+</div>
+
+<div class="test-card">
+  <div class="test-header">
+    <span>3 Dominio Inválido — fecha_fin anterior a fecha_inicio</span>
+    <span class="badge">CHECK</span>
+  </div>
+  <div class="code-block" style="margin-bottom:0; padding:10px;">INSERT INTO Edicion ( nombre, año, fecha_inicio, fecha_fin, estado)
+VALUES ('Bad Edition', 2026, '2026-10-12', '2026-10-10', 'Activa');</div>
+  <div class="error-block">
+    ERROR: new row for relation "edicion" violates check constraint "edicion_check"<br>
+    DETAIL: Failing row contains (Bad Edition, 2026, 2026-10-12, 2026-10-10, Activa).
+  </div>
+</div>
+
+<div class="test-card">
+  <div class="test-header">
+    <span>4 Dato Obligatorio Ausente — correo NULL en Persona</span>
+    <span class="badge">NOT NULL</span>
+  </div>
+  <div class="code-block" style="margin-bottom:0; padding:10px;">INSERT INTO Persona (nombre, correo, pais) VALUES ('Sin Correo', NULL, 'Mexico');</div>
+  <div class="error-block">
+    ERROR: null value in column "correo" of relation "persona" violates not-null constraint<br>
+    DETAIL: Failing row contains (7, Sin Correo, null, Mexico).
+  </div>
+</div>
+
+<div class="test-card">
+  <div class="test-header">
+    <span>5 Autorrelación Inválida — sesión prerrequisito de sí misma</span>
+    <span class="badge">CHECK RECURSIVO</span>
+  </div>
+  <div class="code-block" style="margin-bottom:0; padding:10px;">INSERT INTO Prerrequisito (sesion_id, prerrequisito_id) VALUES ( 1, 1);</div>
+  <div class="error-block">
+    ERROR: new row for relation "prerrequisito" violates check constraint "prerrequisito_check"<br>
+    DETAIL: Failing row contains (1, 1).
+  </div>
+</div>
+
+<div class="test-card">
+  <div class="test-header">
+    <span>6 Segundo acuerdo — misma empresa y edición (violación UNIQUE)</span>
+    <span class="badge">UNIQUE</span>
+  </div>
+  <div class="code-block" style="margin-bottom:0; padding:10px;">INSERT INTO AcuerdoPatrocinio (empresa_id, edicion_id, categoria, monto, fecha_confirmacion)
+VALUES (1, 1, 'Plata', 2000.00, '2026-05-01');</div>
+  <div class="error-block">
+    ERROR: duplicate key value violates unique constraint "acuerdopatrocinio_empresa_id_edicion_id_key"<br>
+    DETAIL: Key (empresa_id, edicion_id)=( 1, 1) already exists.
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<!-- PAGINA 14 - DOCKER -->
+<h2>Reproducibilidad — Docker Compose</h2>
+<div class="code-block">
+services:
+  db:
+    image: postgres:18
+    container_name: conectatech_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: conectatech
+    ports:
+      - "5432:5432"
+</div>
+
+<h3>Flujo Completo desde Cero</h3>
+<table class="table-green-col">
+  <thead>
+    <tr>
+      <th>Paso</th>
+      <th>Acción / Comando</th>
+      <th>Resultado</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1</td>
+      <td>docker-compose up -d</td>
+      <td>Inicia PostgreSQL 18 en localhost:5432</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Ejecutar 01_schema.sql</td>
+      <td>Crea las 15 tablas con todas las restricciones</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Ejecutar 02_seed.sql</td>
+      <td>Inserta 2 ediciones, 6 personas, 6 sesiones, 8 inscripciones</td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>Ejecutar 03_queries.sql</td>
+      <td>Consulta multi-tabla devuelve resultados correctos</td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>Ejecutar 04_invalid_tests.sql</td>
+      <td>Las 6 operaciones fallan con sus respectivos errores</td>
+    </tr>
+    <tr>
+      <td>6</td>
+      <td>docker-compose down -v</td>
+      <td>Elimina contenedor y volumen — base de datos vacía</td>
+    </tr>
+  </tbody>
+</table>
+
+</body>
+</html>
