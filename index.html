@@ -158,10 +158,8 @@
         <div class="callout green"><strong>Sesion → Charla / Taller</strong><br/>Una sesión es exactamente de un tipo, nunca de ambos (disjunta y total). Estrategia: columna discriminadora <code>tipo_sesion</code> + tabla extendida con FK=PK.</div>
       </div>
     </div>
-    <div class="img-placeholder">
-      <div class="ico">🗺️</div>
-      <div class="title">Imagen del Diagrama ER Conceptual (Mermaid)</div>
-      <div class="hint">Abrir modelo-conceptual.mmd en mermaid.live → exportar PNG → reemplazar este bloque</div>
+    <div style="margin:14px 0;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 4px 12px rgba(0,0,0,.08);">
+      <img src="diagrama-conceptual.png" alt="Diagrama ER Conceptual" style="width:100%;display:block;" />
     </div>
   </section>
 
@@ -188,10 +186,8 @@
       <div class="card"><div class="card-head">👥 Persona (Solapada — 3 Tablas)</div><p>Se usó la estrategia Superclase + Subclases separadas. Cada fila en <code>Asistente</code> o <code>Ponente</code> tiene <code>persona_id</code> como PK y FK, reutilizando la identidad del supertipo. Permite registrar a una persona en ambas tablas sin inconsistencias.</p></div>
       <div class="card"><div class="card-head">📋 Sesión (Disjunta — Columna Discriminadora)</div><p>La tabla <code>Sesion</code> contiene <code>tipo_sesion VARCHAR CHECK IN ('Charla','Taller')</code>. Las tablas <code>Charla</code> y <code>Taller</code> extienden con una FK como PK, garantizando exactamente un tipo por fila.</p></div>
     </div>
-    <div class="img-placeholder">
-      <div class="ico">📐</div>
-      <div class="title">Imagen del Diagrama Lógico (Modelo Relacional)</div>
-      <div class="hint">Abrir modelo-logico.mmd en mermaid.live → exportar PNG → reemplazar este bloque</div>
+    <div style="margin:14px 0;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 4px 12px rgba(0,0,0,.08);">
+      <img src="diagrama-logico.png" alt="Diagrama Lógico Relacional" style="width:100%;display:block;" />
     </div>
   </section>
 
@@ -340,3 +336,4 @@ VALUES (1, 1, 'Plata', 2000.00, '2026-05-01');</pre>
 
 </body>
 </html>
+
