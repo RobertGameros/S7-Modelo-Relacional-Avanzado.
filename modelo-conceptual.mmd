@@ -1,19 +1,128 @@
 erDiagram
-    %% 1:1
-    SESION ||--o| TRANSMISION_VIRTUAL : "tiene"
-    %% 1:N
-    SEDE ||--o{ SALA : "contiene"
-    SALA ||--o{ SESION : "aloja"
-    EDICION ||--o{ SESION : "organiza"
-    %% N:M
-    ASISTENTE }|--|{ SESION : "Inscripcion"
-    PONENTE }|--|{ SESION : "Asignacion"
-    EMPRESA }|--|{ EDICION : "AcuerdoPatrocinio"
-    %% Recursiva
-    SESION }|--o{ SESION : "Prerrequisito"
+    %% =========================================================================
+    %% MODELO CONCEPTUAL (ER) — CONECTATECH
+    %% Sin columnas técnicas (IDs ni FKs artificiales); solo atributos de negocio
+    %% =========================================================================
 
-    %% Jerarquías
-    PERSONA ||--o{ ASISTENTE : "es (Solapada, Total)"
-    PERSONA ||--o{ PONENTE : "es (Solapada, Total)"
-    SESION ||--o| CHARLA : "es (Disjunta, Total)"
-    SESION ||--o| TALLER : "es (Disjunta, Total)"
+    SEDE {
+        texto nombre
+        texto ciudad
+        texto direccion
+    }
+
+    EDICION {
+        texto nombre
+        entero anio
+        texto ciudad
+        texto modalidad
+        fecha fecha_inicio
+        fecha fecha_fin
+        texto estado
+    }
+
+    SALA {
+        texto nombre
+        entero capacidad
+    }
+
+    PERSONA {
+        texto nombre
+        texto correo
+        texto pais
+    }
+
+    ASISTENTE {
+        texto tipo_acreditacion
+    }
+
+    PONENTE {
+        texto biografia
+        texto especialidad
+    }
+
+    SESION {
+        texto titulo
+        texto resumen
+        fecha fecha
+        hora hora_inicio
+        hora hora_fin
+        texto tipo_sesion
+    }
+
+    CHARLA {
+        entero minutos_preguntas
+    }
+
+    TALLER {
+        entero cupo_practico
+        texto requisitos_materiales
+    }
+
+    TRANSMISION_VIRTUAL {
+        texto plataforma
+        texto enlace
+        texto codigo_acceso
+    }
+
+    PRERREQUISITO {
+        booleano obligatorio
+    }
+
+    INSCRIPCION {
+        fecha_hora fecha_registro
+        texto estado
+        booleano asistio
+    }
+
+    ASIGNACION_PONENTE {
+        texto rol
+        entero orden
+    }
+
+    EMPRESA {
+        texto nombre
+        texto sector
+        texto sitio_web
+    }
+
+    ACUERDO_PATROCINIO {
+        texto categoria
+        moneda monto
+        fecha fecha_confirmacion
+        booleano vigente
+    }
+
+    %% Relación 1:1
+    SESION ||--o| TRANSMISION_VIRTUAL : "1:1 transmite en"
+
+    %% Relaciones 1:N
+    SEDE |o--o{ EDICION : "1:N alberga"
+    SEDE ||--|{ SALA : "1:N contiene"
+    EDICION ||--|{ SESION : "1:N organiza"
+    SALA |o--o{ SESION : "1:N aloja sin traslape"
+
+    %% Jerarquía 1: Solapada y Total (Persona -> Asistente / Ponente)
+    PERSONA ||--o| ASISTENTE : "ISA (Jerarquia Solapada y Total)"
+    PERSONA ||--o| PONENTE : "ISA (Jerarquia Solapada y Total)"
+
+    %% Jerarquía 2: Disjunta y Total (Sesion -> Charla / Taller)
+    SESION ||--o| CHARLA : "ISA (Jerarquia Disjunta y Total)"
+    SESION ||--o| TALLER : "ISA (Jerarquia Disjunta y Total)"
+
+    %% Relaciones N:M y sus Entidades Asociativas
+    ASISTENTE }o--o{ SESION : "N:M se inscribe"
+    ASISTENTE ||--o{ INSCRIPCION : "registra"
+    SESION ||--o{ INSCRIPCION : "recibe"
+
+    PONENTE }o--o{ SESION : "N:M imparte"
+    PONENTE ||--|{ ASIGNACION_PONENTE : "interviene"
+    SESION ||--|{ ASIGNACION_PONENTE : "programa"
+
+    EMPRESA }o--o{ EDICION : "N:M patrocina"
+    EMPRESA ||--o{ ACUERDO_PATROCINIO : "suscribe"
+    EDICION ||--o{ ACUERDO_PATROCINIO : "respaldada por"
+
+    %% Relación Recursiva N:M sobre Sesion y su Entidad Asociativa
+    SESION }o--o{ SESION : "Recursiva requiere previa"
+    SESION ||--o{ PRERREQUISITO : "exige"
+    SESION ||--o{ PRERREQUISITO : "es previa de"

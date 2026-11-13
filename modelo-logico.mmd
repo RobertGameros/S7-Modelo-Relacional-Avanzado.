@@ -1,60 +1,137 @@
 erDiagram
-    Edicion {
-        int id PK
-        varchar nombre
-        int anio
-        date fecha_inicio
-        date fecha_fin
-    }
-    Persona {
-        int id PK
-        varchar nombre
-        varchar correo UK
-    }
-    Asistente {
-        int persona_id PK,FK
-        varchar tipo_acreditacion
-    }
-    Ponente {
-        int persona_id PK,FK
-        text biografia
-    }
-    Sesion {
-        int id PK
-        int edicion_id FK
-        int sala_id FK
-        varchar tipo_sesion
-    }
-    Charla {
-        int sesion_id PK,FK
-        int minutos_preguntas
-    }
-    Taller {
-        int sesion_id PK,FK
-        int cupo_practico
-    }
-    TransmisionVirtual {
-        int sesion_id PK,FK
-        varchar enlace
-    }
-    Inscripcion {
-        int asistente_id PK,FK
-        int sesion_id PK,FK
-    }
-    AsignacionPonente {
-        int ponente_id PK,FK
-        int sesion_id PK,FK
-    }
-    Prerrequisito {
-        int sesion_id PK,FK
-        int prerrequisito_id PK,FK
+    %% =========================================================================
+    %% MODELO LÓGICO RELACIONAL — CONECTATECH (15 TABLAS EN POSTGRESQL 18)
+    %% Incluye atributos, dominios, PK, FK y claves candidatas (UK)
+    %% =========================================================================
+
+    Sede {
+        int id PK "IDENTITY"
+        varchar_150 nombre UK "NOT NULL"
+        varchar_100 ciudad "NOT NULL"
+        text direccion "NOT NULL"
     }
 
-    Persona ||--|| Asistente : ""
-    Persona ||--|| Ponente : ""
-    Sesion ||--|| Charla : ""
-    Sesion ||--|| Taller : ""
-    Sesion ||--|| TransmisionVirtual : ""
-    Asistente ||--o{ Inscripcion : ""
-    Sesion ||--o{ Inscripcion : ""
-    Sesion ||--o{ Prerrequisito : ""
+    Edicion {
+        int id PK "IDENTITY"
+        varchar_150 nombre UK "NOT NULL"
+        int anio "CHECK >= 2000"
+        varchar_100 ciudad "NOT NULL"
+        varchar_20 modalidad "Presencial|Virtual|Hibrida"
+        date fecha_inicio "NOT NULL"
+        date fecha_fin "CHECK >= fecha_inicio"
+        varchar_30 estado "DEFAULT Planificacion"
+        int sede_id FK "NULLable si Virtual"
+    }
+
+    Sala {
+        int id PK "IDENTITY"
+        int sede_id FK,UK "NOT NULL"
+        varchar_100 nombre UK "UQ(sede_id, nombre)"
+        int capacidad "CHECK > 0"
+    }
+
+    Persona {
+        int id PK "IDENTITY"
+        varchar_150 nombre "NOT NULL"
+        varchar_150 correo UK "NOT NULL UNIQUE"
+        varchar_100 pais "DEFAULT Mexico"
+    }
+
+    Asistente {
+        int persona_id PK,FK "REFERENCES Persona(id)"
+        varchar_30 tipo_acreditacion "General|VIP|Estudiante|Prensa"
+    }
+
+    Ponente {
+        int persona_id PK,FK "REFERENCES Persona(id)"
+        text biografia "NOT NULL"
+        varchar_120 especialidad "DEFAULT Tecnologia"
+    }
+
+    Sesion {
+        int id PK "IDENTITY"
+        int edicion_id FK "NOT NULL"
+        int sala_id FK "NULLable + EXCLUDE GIST horario"
+        varchar_200 titulo "NOT NULL"
+        text resumen "NOT NULL"
+        date fecha "NOT NULL"
+        time hora_inicio "NOT NULL"
+        time hora_fin "CHECK > hora_inicio"
+        varchar_20 tipo_sesion UK "Charla|Taller UQ(id,tipo_sesion)"
+    }
+
+    Charla {
+        int sesion_id PK,FK "REFERENCES Sesion(id,tipo_sesion)"
+        varchar_20 tipo_sesion FK "DEFAULT Charla CHECK='Charla'"
+        int minutos_preguntas "DEFAULT 15 CHECK >= 0"
+    }
+
+    Taller {
+        int sesion_id PK,FK "REFERENCES Sesion(id,tipo_sesion)"
+        varchar_20 tipo_sesion FK "DEFAULT Taller CHECK='Taller'"
+        int cupo_practico "CHECK > 0"
+        text requisitos_materiales "NOT NULL"
+    }
+
+    TransmisionVirtual {
+        int sesion_id PK,FK "1:1 REFERENCES Sesion(id)"
+        varchar_100 plataforma "DEFAULT Zoom"
+        varchar_255 enlace UK "NOT NULL UNIQUE"
+        varchar_50 codigo_acceso "NULLable"
+    }
+
+    Prerrequisito {
+        int sesion_id PK,FK "REFERENCES Sesion(id)"
+        int prerrequisito_id PK,FK "CHECK <> sesion_id"
+        boolean obligatorio "DEFAULT TRUE"
+    }
+
+    Inscripcion {
+        int asistente_id PK,FK "REFERENCES Asistente(persona_id)"
+        int sesion_id PK,FK "REFERENCES Sesion(id)"
+        timestamp fecha_registro "DEFAULT CURRENT_TIMESTAMP"
+        varchar_30 estado "DEFAULT Confirmada"
+        boolean asistio "NULLable hasta finalizar"
+    }
+
+    AsignacionPonente {
+        int ponente_id PK,FK "REFERENCES Ponente(persona_id)"
+        int sesion_id PK,FK,UK "REFERENCES Sesion(id)"
+        varchar_50 rol "DEFAULT Principal"
+        int orden UK "CHECK > 0 UQ(sesion_id,orden)"
+    }
+
+    Empresa {
+        int id PK "IDENTITY"
+        varchar_150 nombre UK "NOT NULL UNIQUE"
+        varchar_100 sector "DEFAULT Tecnologia"
+        varchar_255 sitio_web "NULLable"
+    }
+
+    AcuerdoPatrocinio {
+        int id PK "IDENTITY"
+        int empresa_id FK,UK "UQ(empresa_id, edicion_id)"
+        int edicion_id FK,UK "UQ(empresa_id, edicion_id)"
+        varchar_50 categoria "Diamante|Platino|Oro|Plata|Bronce"
+        numeric_12_2 monto "CHECK > 0"
+        date fecha_confirmacion "DEFAULT CURRENT_DATE"
+        boolean vigente "DEFAULT TRUE"
+    }
+
+    Sede |o--o{ Edicion : "sede_id"
+    Sede ||--|{ Sala : "sede_id"
+    Edicion ||--|{ Sesion : "edicion_id"
+    Sala |o--o{ Sesion : "sala_id"
+    Persona ||--o| Asistente : "persona_id (Solapada)"
+    Persona ||--o| Ponente : "persona_id (Solapada)"
+    Sesion ||--o| Charla : "sesion_id,tipo_sesion (Disjunta)"
+    Sesion ||--o| Taller : "sesion_id,tipo_sesion (Disjunta)"
+    Sesion ||--o| TransmisionVirtual : "sesion_id (1:1)"
+    Sesion ||--o{ Prerrequisito : "sesion_id"
+    Sesion ||--o{ Prerrequisito : "prerrequisito_id"
+    Asistente ||--o{ Inscripcion : "asistente_id"
+    Sesion ||--o{ Inscripcion : "sesion_id"
+    Ponente ||--o{ AsignacionPonente : "ponente_id"
+    Sesion ||--o{ AsignacionPonente : "sesion_id"
+    Empresa ||--o{ AcuerdoPatrocinio : "empresa_id"
+    Edicion ||--o{ AcuerdoPatrocinio : "edicion_id"
