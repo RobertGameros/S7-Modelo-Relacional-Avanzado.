@@ -87,8 +87,8 @@ Elaborado en [modelo-logico.mmd](modelo-logico.mmd) y documentado en [diccionari
 ### 1️⃣ Clonar el repositorio
 
 ```bash
-git clone https://github.com/RobertGameros/S7-Modelo-Relacional-Avanzado..git
-cd S7-Modelo-Relacional-Avanzado.
+git clone https://github.com/RobertGameros/S7-Modelo-Relacional-Avanzado..git s7-modelo-relacional-avanzado
+cd s7-modelo-relacional-avanzado
 ```
 
 ### 2️⃣ Crear el archivo `.env` desde la plantilla
