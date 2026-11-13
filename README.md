@@ -1,13 +1,13 @@
 <div align="center">
 
-# 🗄️ S7 — Narrativa al Modelo Relacional Avanzado
-### ConectaTech · Sistema de Gestión de Congresos Profesionales
+# 🗄️ S7 — De la Narrativa al Modelo Relacional Avanzado
+### Congreso ConectaTech · Sistema de Gestión de Congresos Profesionales
 
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-18.0-336791?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docs.docker.com/compose/)
-[![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
+[![Mermaid](https://img.shields.io/badge/Mermaid-ER_Diagrams-FF3670?style=for-the-badge&logo=mermaid&logoColor=white)](https://mermaid.js.org/)
 
-> Proyecto académico: análisis narrativo, modelo ER avanzado y esquema relacional ejecutable en PostgreSQL 18 con Docker.
+> Análisis de narrativa de negocio, modelo entidad-relación conceptual y lógico en Mermaid, y esquema relacional ejecutable en **PostgreSQL 18.0** con validación declarativa de integridad.
 
 </div>
 
@@ -15,205 +15,157 @@
 
 ## 📋 Tabla de Contenidos
 
-- [Descripción](#-descripción)
+- [Descripción del Dominio](#-descripción-del-dominio)
 - [Estructura del Repositorio](#-estructura-del-repositorio)
-- [Modelos](#-modelos)
-- [Tecnologías](#-tecnologías)
-- [Inicio Rápido](#-inicio-rápido)
-- [Scripts SQL](#-scripts-sql)
-- [Reglas de Negocio](#-reglas-de-negocio)
-- [Restricciones Validadas](#-restricciones-validadas)
+- [Modelo Conceptual (ER)](#-modelo-conceptual-er)
+- [Modelo Lógico Relacional](#-modelo-lógico-relacional)
+- [Reproducibilidad con Docker Compose](#-reproducibilidad-con-docker-compose)
+- [Reglas de Negocio y Restricciones](#-reglas-de-negocio-y-restricciones)
+- [Pruebas de Operaciones Inválidas](#-pruebas-de-operaciones-inválidas)
 - [Video de Demostración](#-video-de-demostración)
 
 ---
 
-## 📌 Descripción
+## 📌 Descripción del Dominio
 
-**ConectaTech** organiza congresos profesionales **presenciales, virtuales e híbridos** en distintas ciudades.
+**ConectaTech** organiza congresos profesionales **presenciales, virtuales e híbridos** en distintas ciudades. Esta solución modela y protege íntegramente el dominio en **PostgreSQL 18.0** sin usar ORMs ni generadores automáticos:
 
-Este proyecto transforma la narrativa del dominio en un esquema relacional completamente ejecutable, que incluye:
-
-| ✅ Característica | Detalle |
+| Característica | Implementación en el Proyecto |
 |---|---|
-| 🏗️ **15 tablas** | Modelado fiel a la narrativa |
-| 🔗 **Relaciones** | 1:1, 1:N, N:M y Recursiva |
-| 🌲 **Jerarquías** | Solapada (Persona) y Disjunta (Sesion) |
-| 🛡️ **Restricciones** | PK, FK, UNIQUE, CHECK, NOT NULL, DEFAULT |
-| 🐳 **Reproducible** | Desde cero con Docker Compose |
-| ❌ **Validación** | 6 operaciones inválidas rechazadas |
+| 🏗️ **15 Tablas Relacionales** | `Sede`, `Edicion`, `Sala`, `Persona`, `Asistente`, `Ponente`, `Sesion`, `Charla`, `Taller`, `TransmisionVirtual`, `Prerrequisito`, `Inscripcion`, `AsignacionPonente`, `Empresa`, `AcuerdoPatrocinio` |
+| 🔗 **Relaciones Completas** | **1:1** (`Sesion`–`TransmisionVirtual`), **1:N** (`Sede`–`Sala`, `Sede`–`Edicion`, `Edicion`–`Sesion`, `Sala`–`Sesion`), **N:M** (`Inscripcion`, `AsignacionPonente`, `AcuerdoPatrocinio`) y **Recursiva** (`Prerrequisito`) |
+| 🌲 **Dos Jerarquías** | **Solapada y Total**: `Persona` → `Asistente` / `Ponente` · **Disjunta y Total**: `Sesion` → `Charla` / `Taller` |
+| 🛡️ **Integridad en Motor** | `GENERATED ALWAYS AS IDENTITY`, `PRIMARY KEY`, `FOREIGN KEY`, `UNIQUE`, `CHECK`, `DEFAULT`, `NOT NULL` y `EXCLUDE USING gist` (sin solapamiento de horarios en salas) |
 
 ---
 
 ## 📁 Estructura del Repositorio
 
-```
+```text
 s7-modelo-relacional-avanzado/
-│
-├── 📄 README.md                  ← Este archivo
-├── 📄 narrativa-y-reglas.md      ← Narrativa completa + 12 reglas de negocio
-├── 📄 diccionario-datos.md       ← Descripción de cada tabla
-│
-├── 🗺️  modelo-conceptual.mmd     ← Diagrama ER Conceptual (Mermaid)
-├── 📐  modelo-logico.mmd         ← Diagrama Lógico Relacional (Mermaid)
-├── 🖼️  diagrama-conceptual.png   ← Imagen exportada del modelo conceptual
-├── 🖼️  diagrama-logico.png       ← Imagen exportada del modelo lógico
-│
-├── 🐳  compose.yaml              ← Docker Compose con PostgreSQL 18
-├── 🔒  .env.example              ← Variables de entorno de ejemplo
-├── 🚫  .gitignore
-│
-├── 🌐  index.html                ← Reporte HTML para entrega en Canvas (PDF)
-│
-└── 📂 sql/
-    ├── 01_schema.sql             ← Creación de tablas y restricciones
-    ├── 02_seed.sql               ← Datos de prueba
-    ├── 03_queries.sql            ← Consultas de validación
-    └── 04_invalid_tests.sql      ← Operaciones inválidas rechazadas
+├── README.md                  ← Documentación principal y guía de reproducibilidad
+├── narrativa-y-reglas.md      ← Análisis del dominio, supuestos, decisiones y 14 reglas de negocio
+├── diccionario-datos.md       ← Diccionario completo de las 15 tablas y justificación del modelo lógico
+├── compose.yaml               ← Servicio Docker Compose con imagen explícita postgres:18.0
+├── .env.example               ← Plantilla de variables de entorno (sin contraseñas reales en Git)
+├── .gitignore                 ← Exclusión de .env y volúmenes locales
+├── modelo-conceptual.mmd      ← Fuente Mermaid del diagrama ER conceptual (sin columnas técnicas)
+├── modelo-logico.mmd          ← Fuente Mermaid del modelo lógico relacional (15 tablas con PK/FK/UK)
+├── diagrama-conceptual.png    ← Vista exportada del modelo conceptual
+├── diagrama-logico.png        ← Vista exportada del modelo lógico
+├── index.html                 ← Reporte ejecutivo para exportación a PDF (Entregable Canvas)
+└── sql/
+    ├── 01_schema.sql          ← Creación limpia de las 15 tablas y sus restricciones
+    ├── 02_seed.sql            ← Datos semilla (2 ediciones, 6 personas, 6 sesiones, 8 inscripciones, 4 ponencias, 3 patrocinios)
+    ├── 03_queries.sql         ← 5 consultas multi-tabla (programa, cupos, participación, jerarquías, patrocinios)
+    └── 04_invalid_tests.sql   ← 8 operaciones inválidas rechazadas por PostgreSQL 18.0
 ```
 
 ---
 
-## 🗺️ Modelos
+## 🗺️ Modelo Conceptual (ER)
 
-### Modelo Conceptual (ER)
+Elaborado en [modelo-conceptual.mmd](modelo-conceptual.mmd) sin columnas técnicas. Incluye todas las entidades del dominio, entidades asociativas, relación recursiva y las dos jerarquías requeridas:
 
-> Elaborado en Mermaid. Incluye entidades, jerarquías, relaciones y cardinalidades.
+- **Jerarquía Solapada y Total (`Persona` → `Asistente` / `Ponente`)**: Una persona puede ser asistente, ponente o ambos en una edición, y debe desempeñar al menos un rol.
+- **Jerarquía Disjunta y Total (`Sesion` → `Charla` / `Taller`)**: Toda sesión es exactamente una charla o un taller, nunca ambos.
 
 ![Diagrama ER Conceptual](diagrama-conceptual.png)
 
-**Jerarquías incluidas:**
-- 👥 **Persona → Asistente / Ponente** — Solapada y Total (una persona puede ser ambas)
-- 📋 **Sesion → Charla / Taller** — Disjunta y Total (solo puede ser una)
+---
+
+## 📐 Modelo Lógico Relacional
+
+Elaborado en [modelo-logico.mmd](modelo-logico.mmd) y documentado en [diccionario-datos.md](diccionario-datos.md). Representa las **15 tablas** con sus dominios, claves primarias (`PK`), claves foráneas (`FK`) y claves candidatas (`UK`):
+
+![Diagrama Lógico Relacional](diagrama-logico.png)
 
 ---
 
-### Modelo Lógico (Relacional)
-
-> Transformación del modelo conceptual a tablas con PK, FK y claves candidatas.
-
-![Diagrama Lógico](diagrama-logico.png)
-
----
-
-## ⚙️ Tecnologías
-
-| Tecnología | Versión | Uso |
-|---|---|---|
-| 🐘 PostgreSQL | **18** (imagen fija) | Motor de base de datos |
-| 🐳 Docker Compose | v2+ | Orquestación del contenedor |
-| 📊 Mermaid | Live Editor | Diagramas ER |
-| 🖊️ SQL puro | — | Sin ORM, sin generadores |
-
----
-
-## 🚀 Inicio Rápido
-
-### Prerrequisitos
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) instalado y corriendo
-- Cliente SQL: [DataGrip](https://www.jetbrains.com/datagrip/), [DBeaver](https://dbeaver.io/) o `psql`
+## 🚀 Reproducibilidad con Docker Compose
 
 ### 1️⃣ Clonar el repositorio
 
 ```bash
-git clone https://github.com/RobertGameros/S7-Modelo-Relacional-Avanzado.git
-cd S7-Modelo-Relacional-Avanzado
+git clone https://github.com/RobertGameros/S7-Modelo-Relacional-Avanzado..git
+cd S7-Modelo-Relacional-Avanzado.
 ```
 
-### 2️⃣ Configurar variables de entorno
+### 2️⃣ Crear el archivo `.env` desde la plantilla
 
 ```bash
 cp .env.example .env
-# El valor por defecto ya funciona: DB_PASSWORD=postgres
+# Edite .env con su contraseña local (p. ej. POSTGRES_USER=ROBERT y POSTGRES_PASSWORD=...)
 ```
 
-### 3️⃣ Levantar PostgreSQL 18
+### 3️⃣ Iniciar PostgreSQL 18.0 desde una base vacía
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
-> **Conexión:** `localhost:5432` · DB: `conectatech` · User: `postgres` · Pass: `postgres`
-
-### 4️⃣ Ejecutar los scripts en orden
+### 4️⃣ Ejecutar los scripts en orden (Creación, Carga, Consultas y Validación de Restricciones)
 
 ```bash
-# Usando psql dentro del contenedor:
-docker exec -i conectatech_db psql -U postgres -d conectatech < sql/01_schema.sql
-docker exec -i conectatech_db psql -U postgres -d conectatech < sql/02_seed.sql
-docker exec -i conectatech_db psql -U postgres -d conectatech < sql/03_queries.sql
-docker exec -i conectatech_db psql -U postgres -d conectatech < sql/04_invalid_tests.sql
+# 1. Crear esquema (15 tablas y restricciones)
+docker exec -i conectatech_db psql -U ROBERT -d conectatech < sql/01_schema.sql
+
+# 2. Cargar datos semilla
+docker exec -i conectatech_db psql -U ROBERT -d conectatech < sql/02_seed.sql
+
+# 3. Ejecutar consultas de validación del programa, cupos y participación
+docker exec -i conectatech_db psql -U ROBERT -d conectatech < sql/03_queries.sql
+
+# 4. Demostrar el rechazo de estados imposibles (debe reportar ERROR en cada prueba inválida)
+docker exec -i conectatech_db psql -U ROBERT -d conectatech < sql/04_invalid_tests.sql
 ```
 
-> También puedes abrirlos directamente en DataGrip o DBeaver y ejecutarlos uno a uno.
-
-### 5️⃣ Reiniciar desde cero
+### 5️⃣ Reiniciar la solución desde una base completamente vacía
 
 ```bash
-docker-compose down -v   # Elimina contenedor + volumen
-docker-compose up -d     # Base de datos limpia
+docker compose down -v
+docker compose up -d
 ```
 
 ---
 
-## 🗂️ Scripts SQL
+## 📏 Reglas de Negocio y Restricciones
 
-| Script | Descripción | Elementos |
-|---|---|---|
-| `01_schema.sql` | Crea todas las tablas y restricciones | 15 tablas, PK, FK, CHECK, UNIQUE, DEFAULT |
-| `02_seed.sql` | Inserta los datos de prueba | 2 ediciones, 6 personas, 6 sesiones, 8 inscripciones, 3 acuerdos |
-| `03_queries.sql` | Consultas multi-tabla de validación | JOIN sobre Persona→Asistente→Inscripcion→Sesion→Edicion |
-| `04_invalid_tests.sql` | Operaciones que deben fallar | 6 pruebas con 6 tipos de restricción distintos |
+Documentadas en detalle en [narrativa-y-reglas.md](narrativa-y-reglas.md):
 
----
-
-## 📐 Reglas de Negocio
-
-| # | Regla | Restricción SQL |
-|---|---|---|
-| R1 | La fecha de fin no puede ser anterior a la de inicio | `CHECK (fecha_fin >= fecha_inicio)` |
-| R2 | El correo de cada persona es único | `UNIQUE (correo)` |
-| R3 | Una sesión es exactamente Charla o Taller | `CHECK (tipo_sesion IN ('Charla','Taller'))` |
-| R4 | Un asistente no se inscribe dos veces en la misma sesión | `PRIMARY KEY (asistente_id, sesion_id)` |
-| R5 | Ninguna sesión es prerrequisito de sí misma | `CHECK (sesion_id != prerrequisito_id)` |
-| R6 | Una empresa solo tiene un acuerdo vigente por edición | `UNIQUE (empresa_id, edicion_id)` |
-| R7 | La hora final de la sesión es posterior a la inicial | `CHECK (hora_fin > hora_inicio)` |
-| R8 | La capacidad de sala es mayor a cero | `CHECK (capacidad > 0)` |
-| R9 | El cupo práctico de taller es positivo | `CHECK (cupo_practico > 0)` |
-| R10 | Los minutos de preguntas de una charla no son negativos | `CHECK (minutos_preguntas >= 0)` |
-| R11 | El monto de un patrocinio no es negativo | `CHECK (monto >= 0)` |
-| R12 | El año de una edición es posterior a 1999 | `CHECK (anio >= 2000)` |
-
----
-
-## ❌ Restricciones Validadas (04_invalid_tests.sql)
-
-| # | Operación Inválida | Tipo de Restricción | Error Esperado |
+| Código | Regla de Negocio | Origen | Restricción en PostgreSQL 18.0 |
 |---|---|---|---|
-| 1 | Inscripción duplicada del mismo asistente | `PRIMARY KEY` | duplicate key value |
-| 2 | FK a sala inexistente (sala_id = 999) | `FOREIGN KEY` | not present in table |
-| 3 | fecha_fin anterior a fecha_inicio | `CHECK` | violates check constraint |
-| 4 | Correo NULL en Persona | `NOT NULL` | violates not-null constraint |
-| 5 | Sesión prerrequisito de sí misma | `CHECK` recursivo | violates check constraint |
-| 6 | Segundo acuerdo de patrocinio misma empresa+edición | `UNIQUE` | duplicate key value |
+| **RN-01** | La fecha final de una edición no puede ser anterior a su fecha inicial | Explícito | `CHECK (fecha_fin >= fecha_inicio)` |
+| **RN-02** | Edición presencial/híbrida exige sede; edición virtual no usa sede física | Explícito | `CHECK (chk_edicion_sede_modalidad)` |
+| **RN-03** | El correo electrónico de cada persona es obligatorio y único | Explícito | `NOT NULL UNIQUE CHECK (correo LIKE '%_@_%.__%')` |
+| **RN-04** | Toda persona desempeña rol de Asistente, Ponente o ambos | Explícito | Jerarquía solapada (`Asistente`, `Ponente` con `PK=FK`) |
+| **RN-05** | Toda sesión se clasifica exactamente como `Charla` o `Taller` | Explícito | `CHECK (tipo_sesion IN ('Charla','Taller'))` + FK compuesta `(sesion_id, tipo_sesion)` |
+| **RN-06** | La hora final de una sesión es posterior a su hora inicial | Explícito | `CHECK (hora_fin > hora_inicio)` |
+| **RN-07** | Una sala no aloja dos sesiones cuyos horarios se superpongan | Explícito | `EXCLUDE USING gist (sala_id WITH =, tsrange(...) WITH &&)` |
+| **RN-08** | Una sesión tiene como máximo una transmisión virtual (1:1) | Decisión propia | `TransmisionVirtual (sesion_id PRIMARY KEY REFERENCES Sesion(id))` |
+| **RN-09** | Ninguna sesión puede ser prerrequisito de sí misma | Explícito | `CHECK (sesion_id <> prerrequisito_id)` |
+| **RN-10** | No puede existir dos veces la misma inscripción de un asistente a una sesión | Explícito | `PRIMARY KEY (asistente_id, sesion_id)` |
+| **RN-11** | Dos ponentes no pueden compartir el mismo orden en la misma sesión | Supuesto | `UNIQUE (sesion_id, orden)` |
+| **RN-12** | Solo debe existir un acuerdo vigente por empresa patrocinadora y edición | Explícito | `UNIQUE (empresa_id, edicion_id)` |
+
+---
+
+## ❌ Pruebas de Operaciones Inválidas (`sql/04_invalid_tests.sql`)
+
+| # | Categoría Requerida | Operación Inválida Probada | Restricción que Rechaza | Mensaje de Error en PostgreSQL |
+|---|---|---|---|---|
+| **1** | **Duplicado** | Inscribir a `asistente_id=1` por segunda vez en `sesion_id=1` | `PRIMARY KEY (asistente_id, sesion_id)` | `duplicate key value violates unique constraint "inscripcion_pkey"` |
+| **2** | **FK inexistente** | Crear sesión apuntando a `sala_id=999` | `FOREIGN KEY (sala_id)` | `insert or update on table "sesion" violates foreign key constraint "sesion_sala_id_fkey"` |
+| **3** | **Valor fuera de dominio** | Crear edición con `fecha_fin < fecha_inicio` | `CHECK (chk_edicion_fechas)` | `new row for relation "edicion" violates check constraint "chk_edicion_fechas"` |
+| **4** | **Dato obligatorio ausente** | Insertar `Persona` con `correo = NULL` | `NOT NULL (correo)` | `null value in column "correo" of relation "persona" violates not-null constraint` |
+| **5** | **Autorrelación inválida** | Asignar `sesion_id=1` como prerrequisito de sí misma (`1 -> 1`) | `CHECK (chk_prerrequisito_no_recursivo)` | `new row for relation "prerrequisito" violates check constraint "chk_prerrequisito_no_recursivo"` |
+| **6** | **Violación adicional (UK)** | Segundo acuerdo de patrocinio para `empresa_id=1` y `edicion_id=1` | `UNIQUE (uq_acuerdo_empresa_edicion)` | `duplicate key value violates unique constraint "uq_acuerdo_empresa_edicion"` |
+| **7** | **Solapamiento de sala** | Programar otra sesión en `sala_id=1` el `2026-10-10` de `09:30` a `11:00` | `EXCLUDE USING gist (excl_sala_sin_traslape)` | `conflicting key value violates exclusion constraint "excl_sala_sin_traslape"` |
+| **8** | **Jerarquía disjunta** | Registrar la Sesión 1 (`Charla`) en la tabla `Taller` | `FOREIGN KEY (fk_taller_sesion)` | `insert or update on table "taller" violates foreign key constraint "fk_taller_sesion"` |
 
 ---
 
 ## 🎬 Video de Demostración
 
-> 📹 **Enlace al video (máx. 3 min):**
-> [Ver en Google Drive](https://drive.google.com/drive/folders/1rsT8FCPpZ7aiTyq1t3qWWwalcTQky-Z4?usp=sharing)
-
-**El video demuestra:**
-- ✅ Modelo conceptual y lógico
-- ✅ Creación de tablas desde base vacía
-- ✅ Datos cargados y consulta multi-tabla
-- ✅ Operaciones inválidas rechazadas por restricciones
-
----
-
-<div align="center">
-
-**Robert Gameros** · Ingeniería en Sistemas · Bases de Datos · 2026
-
-</div>
-
+- **Enlace de lectura al video (máx. 3 minutos):** [Ver Demostración en Google Drive](https://drive.google.com/drive/folders/1rsT8FCPpZ7aiTyq1t3qWWwalcTQky-Z4?usp=sharing)
+- **Repositorio Público:** [https://github.com/RobertGameros/S7-Modelo-Relacional-Avanzado.](https://github.com/RobertGameros/S7-Modelo-Relacional-Avanzado.)
